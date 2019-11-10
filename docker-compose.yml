@@ -1,31 +1,38 @@
-version: "2.1"
-
-services:
-  endpoint:
-    image: "itworks99/narwhal_endpoint"
-    ports:
-      - 514:514
-  server:
-    image: "itworks99/narwhal"
-    ports:
-      - "8080:3000"
-      # - "80:3000"
-      # - "3000:3000"
-    environment:
-      REMOTE_REDIS_HOST: "data"
-    command: apk add openssl
-    # command: openssl req -x509 -out localhost.crt -keyout localhost.key \
-    #   -newkey rsa:2048 -nodes -sha256 \
-    #   -subj '/CN=localhost' -extensions EXT -config <( \
-    #   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
-  data:
-    image: "redis:alpine"
-    ports:
-      - "6379:6379"
-    environment:
-      REMOTE_REDIS_HOST: "data"
+version: "3.7"
 
 x-logging: &default-logging
   driver: syslog
   options:
-    syslog-address: "tcp://endpoint:514"
+    syslog-address: "udp://127.0.0.1:514"
+
+services:
+  endpoint:
+    image: "itworks99/narwhal_endpoint:latest"
+    ports:
+      - 514:514
+    environment:
+      REMOTE_REDIS_HOST: "data"
+    depends_on:
+      - data
+    links:
+      - data
+  server:
+    image: "itworks99/narwhal:latest"
+    ports:
+      - "3000:3000"
+    environment:
+      REMOTE_REDIS_HOST: "data"
+      DASHBOARD_WEB_INTERFACE: "0.0.0.0"
+      DASHBOARD_WEB_PORT: "3000"
+    depends_on:
+      - data
+    links:
+      - data
+    # logging: *default-logging
+
+  data:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    # logging: *default-logging
+  # networks: default:
