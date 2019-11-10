@@ -24,4 +24,13 @@ or
 
     docker-compose -f "docker-compose.yml" up -d --build
 
-### Access web dashboard at 
+### Access web dashboard
+
+Navigate to https://127.0.0.1:3000 then create a security exception because at this point in time Narwhal is using [local security certificates](https://letsencrypt.org/docs/certificates-for-localhost/).
+
+### Access JSON endpoints
+
+Navigate to https://127.0.0.1:3000/json_all for all data. Use https://127.0.0.1:3000/json_alerts for alerts only.
+
+
+### Download data as CSV files

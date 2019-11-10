@@ -3,11 +3,11 @@ version: "3.7"
 x-logging: &default-logging
   driver: syslog
   options:
-    syslog-address: "udp://127.0.0.1:514"
+    syslog-address: "tcp://127.0.0.1:514"
 
 services:
   endpoint:
-    image: "itworks99/narwhal_endpoint:latest"
+    image: "itworks99/narwhal_endpoint"
     ports:
       - 514:514
     environment:
@@ -16,10 +16,15 @@ services:
       - data
     links:
       - data
+    logging: *default-logging
+
   server:
-    image: "itworks99/narwhal:latest"
+    image: "itworks99/narwhal"
     ports:
       - "3000:3000"
+      - "8080:3000"
+      - "80:3000"
+      - "8000:3000"
     environment:
       REMOTE_REDIS_HOST: "data"
       DASHBOARD_WEB_INTERFACE: "0.0.0.0"
@@ -28,11 +33,10 @@ services:
       - data
     links:
       - data
-    # logging: *default-logging
+    logging: *default-logging
 
   data:
     image: "redis:alpine"
     ports:
       - "6379:6379"
     # logging: *default-logging
-  # networks: default:
